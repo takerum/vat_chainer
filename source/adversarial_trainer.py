@@ -8,7 +8,7 @@ def as_mat(x):
     return x.reshape(x.shape[0], x.size // x.shape[0])
 
 def normalize_axis1_cpu(x):
-    x_scaled = x / (numpy.max(numpy.abs(x), axis=1, keepdims=True))
+    x_scaled = x / (1e-6 + numpy.max(numpy.abs(x), axis=1, keepdims=True))
     return x_scaled / numpy.sqrt(1e-6 + numpy.sum(x_scaled ** 2, axis=1, keepdims=True))
 
 def normalize_axis1_gpu(x):
@@ -28,9 +28,9 @@ def normalize_axis1_gpu(x):
             maxes[i] = maxval;
             ''', 'gx_rowmax')(maxes, x, c)
     cuda.elementwise(
-        'float* y, const float* x, const float* maxes, int c',
-        'y[i] = x[i] / maxes[i / c]',
-        'gx_scaled_with_max')(nx, x, maxes, c)
+        'float* y, const float* x, const float* maxes, int c, float k',
+        'y[i] = x[i] / (maxes[i / c] + k)',
+        'gx_scaled_with_max')(nx, x, maxes, c, 1e-6)
     coeff = maxes
     cuda.elementwise(
         'float* coeff, const float* y, int c,float k',

@@ -26,7 +26,7 @@ class stdNN(NN):
                                 b3 = MyBatchNormalization(300, decay=0.9, eps=1e-06),
                                 l4 =F.Linear(300,150,nobias=True),
                                 b4 = MyBatchNormalization(150, decay=0.9, eps=1e-06),
-                                l5 =F.Linear(150,10),
+                                l5 =F.Linear(150,10,nobias=True),
                                 b5 = MyBatchNormalization(10, decay=0.9, eps=1e-06))
         self.to_gpu()
     def y_given_x(self,x,test,upd_batch_est=True):
@@ -53,6 +53,8 @@ class stdNN(NN):
 # #Initialize NN and virtual adversarial trainer
 
 # In[3]:
+
+numpy.random.seed(1)
 
 cuda.init()
 model = stdNN()
@@ -110,5 +112,6 @@ for epoch in xrange(100):
     print '[epoch ' +  str(epoch) +']' 
     print 'train nll:' + str(sum_nll/60000) + ' train cost_vadv:' + str(sum_cost_vadv/60000)
     print 'train accuracy(%):' + str(sum_accuracy/60000*100) + ' test accuracy(%):' + str(sum_test_accuracy/10000*100)
+
 
 
