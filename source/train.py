@@ -112,26 +112,3 @@ for epoch in xrange(100):
     print 'train accuracy(%):' + str(sum_accuracy/60000*100) + ' test accuracy(%):' + str(sum_test_accuracy/10000*100)
 
 
-# #Save the computional graph
-
-# In[4]:
-
-import chainer.computational_graph as c
-from graphviz import Source
-g = c.build_computational_graph([loss]).dump()
-Source(g,filename='computational_graph',).save()
-
-
-# #Visualize virtual adversarial perturbations
-# 
-
-# In[5]:
-
-import matplotlib.pyplot as plt
-xvadv, ptb = virtual_adversarial_trainer.get_virtual_adversarial_examples(x_batch,test=False)
-plt.figure(figsize=(10,10))
-for i in xrange(30):
-    plt.subplot(5,6,i)
-    plt.imshow(cuda.to_cpu(ptb[i]).reshape((28,28)),cmap='binary')
-plt.savefig('vap.pdf')
-
