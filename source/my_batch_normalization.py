@@ -3,6 +3,7 @@
 from chainer.functions.batch_normalization import BatchNormalization
 from chainer import Function
 from chainer import cuda
+import numpy
 
 def _kernel_with_I(args, expr, name):
     return cuda.elementwise(
