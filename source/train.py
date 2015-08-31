@@ -28,7 +28,6 @@ class stdNN(NN):
                                 b4 = MyBatchNormalization(150, decay=0.9, eps=1e-06),
                                 l5 =F.Linear(150,10,nobias=True),
                                 b5 = MyBatchNormalization(10, decay=0.9, eps=1e-06))
-        self.to_gpu()
     def y_given_x(self,x,test,upd_batch_est=True):
         h = self.l1(x)
         h = self.b1(h,test,False,upd_batch_est)
@@ -55,9 +54,9 @@ class stdNN(NN):
 # In[3]:
 
 numpy.random.seed(1)
-
-cuda.init()
-model = stdNN()
+cuda.init(1)
+cuda.seed(numpy.random.randint(9999,size=1),1)
+model = stdNN().to_gpu()
 virtual_adversarial_trainer = VirtualAdversarialTrainer(model,out_act_type='Softmax',epsilon=2.1,
                                                                             norm_constraint_type='L2',lamb=numpy.float(1.0),
                                                                             xi=numpy.float(1e-6),num_power_iteration=1)
