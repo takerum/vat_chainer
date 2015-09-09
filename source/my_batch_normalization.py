@@ -2,8 +2,7 @@
 
 from chainer.functions.normalization.batch_normalization import BatchNormalization
 from chainer import Function
-from chainer import cuda
-import numpy
+import cupy
 
 
 class MyBatchNormalization(BatchNormalization):
@@ -14,7 +13,7 @@ class MyBatchNormalization(BatchNormalization):
         return Function.__call__(self, x)
 
     def forward(self, x_orig):
-        xp = cuda.get_array_module(*x_orig)
+        xp = cupy.get_array_module(*x_orig)
         ldim, cdim, rdim = self._internal_shape(x_orig[0])
         x = x_orig[0].reshape(ldim, cdim, rdim)
 

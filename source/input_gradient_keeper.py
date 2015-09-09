@@ -1,6 +1,5 @@
 from chainer import Function, FunctionSet, gradient_check, Variable, optimizers
-from chainer import cuda
-import numpy
+import cupy
 
 def as_mat(x):
     return x.reshape(x.shape[0], x.size // x.shape[0])
@@ -12,7 +11,7 @@ class InputGradientKeeper(Function):
         return super(InputGradientKeeper, self).__call__(inputs)
 
     def init_gx(self, inputs):
-        xp = cuda.get_array_module(*inputs.data)
+        xp = cupy.get_array_module(*inputs.data)
         self.gx = as_mat(xp.zeros_like(inputs.data))
 
     def forward(self, inputs):

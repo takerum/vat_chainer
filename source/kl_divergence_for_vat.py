@@ -1,8 +1,7 @@
-import numpy
+
 from chainer import cuda
 from chainer import function
-from chainer.utils import type_check
-
+import cupy
 
 class CategoricalKLDivergence(function.Function):
 
@@ -10,7 +9,7 @@ class CategoricalKLDivergence(function.Function):
         self.unchain_py = unchain_py
 
     def forward(self, inputs):
-        xp = cuda.get_array_module(*inputs[0])
+        xp = cupy.get_array_module(*inputs[0])
         """
         return (1/N) * \sum_i^N \sum_j^L [py_ij * log(py_ij) - py_ij * log(py_tilde_ij)]
         """
@@ -21,7 +20,7 @@ class CategoricalKLDivergence(function.Function):
 
 
     def backward(self, inputs, grad_outputs):
-        xp = cuda.get_array_module(*inputs[0])
+        xp = cupy.get_array_module(*inputs[0])
         """
         (gradient w.r.t py) = log(py) + 1 - log(py_tilde)
         (gradient w.r.t py_tilde) = - py/py_tilde

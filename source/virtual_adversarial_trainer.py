@@ -1,5 +1,6 @@
 from adversarial_trainer import *
 from kl_divergence_for_vat import *
+import cupy
 
 class VirtualAdversarialTrainer(AdversarialTrainer):
 
@@ -30,11 +31,8 @@ class VirtualAdversarialTrainer(AdversarialTrainer):
         cost_fitness_vadv = categorical_kl_divergence(py,py_given_xvadv,unchain_py=unchain_clean_y)
         return cost_fitness, self.lamb*cost_fitness_vadv
 
-    def get_random_vector(self,shape):
-        xp = cuda.get_array_module()
-
     def get_virtual_adversarial_examples_for_py(self,x,py,test=False):
-        xp = cuda.get_array_module(*x)
+        xp = cupy.get_array_module(*x)
         d = xp.random.normal(size=x.data.shape)
         for i in xrange(self.num_power_iteration):
             input_gradient_keeper = InputGradientKeeper()
