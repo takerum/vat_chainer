@@ -12,10 +12,8 @@ class InputGradientKeeper(Function):
         return super(InputGradientKeeper, self).__call__(inputs)
 
     def init_gx(self, inputs):
-        if isinstance(inputs.data, cuda.GPUArray):
-            self.gx = as_mat(cuda.zeros_like(inputs.data))
-        else:
-            self.gx = as_mat(numpy.zeros_like(inputs.data))
+        xp = cuda.get_array_module(*inputs.data)
+        self.gx = as_mat(xp.zeros_like(inputs.data))
 
     def forward(self, inputs):
         return inputs

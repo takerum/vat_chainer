@@ -27,25 +27,22 @@ class VirtualAdversarialTrainer(AdversarialTrainer):
         py = self.nn.py_given_y(y)
         xvadv,ptb = self.get_virtual_adversarial_examples_for_py(x,py,test=test)
         py_given_xvadv = self.nn.py_given_x(xvadv,test,False)
-        cost_fitness_vadv = kldivergence_for_vat(py,py_given_xvadv,unchain_py=unchain_clean_y,use_cudnn=False)
+        cost_fitness_vadv = categorical_kl_divergence(py,py_given_xvadv,unchain_py=unchain_clean_y)
         return cost_fitness, self.lamb*cost_fitness_vadv
 
-    def get_random_vector(self,shape,gpu):
-        if(gpu):
-            return cuda.get_generator().gen_normal(shape=shape,dtype='float32')
-        else:
-            return numpy.asarray(numpy.random.normal(size=shape),dtype='float32')
+    def get_random_vector(self,shape):
+        xp = cuda.get_array_module()
 
     def get_virtual_adversarial_examples_for_py(self,x,py,test=False):
-        # ToDo: reuse GPU memory 
-        d = self.get_random_vector(x.data.shape,isinstance(x.data,cuda.GPUArray))
+        xp = cuda.get_array_module(*x)
+        d = xp.random.normal(size=x.data.shape)
         for i in xrange(self.num_power_iteration):
             input_gradient_keeper = InputGradientKeeper()
             d = as_mat(d)
             x_xi_d = x + self.xi*normalize_axis1(d).reshape(x.data.shape)
             x_xi_d_ = input_gradient_keeper(x_xi_d)
             py_given_x_xi_d = self.nn.py_given_x(x_xi_d_,test,False)
-            kl = kldivergence_for_vat(py,py_given_x_xi_d,unchain_py=True,use_cudnn=False)
+            kl = categorical_kl_divergence(py,py_given_x_xi_d,unchain_py=True,use_cudnn=False)
             kl.backward()
             d = input_gradient_keeper.gx
         if (self.norm_constraint_type == 'L2'):
