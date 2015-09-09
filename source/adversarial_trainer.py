@@ -8,7 +8,7 @@ def as_mat(x):
 
 def normalize_axis1(x):
     xp = cupy.get_array_module(*x)
-    x_scaled = x / (1e-6 + xp.max(xp.abs(x), axis=1, keepdims=True))
+    x_scaled = x / (1e-6 + xp.amax(abs(x), axis=1, keepdims=True))
     return x_scaled / xp.sqrt(1e-6 + xp.sum(x_scaled ** 2, axis=1, keepdims=True))
 
 

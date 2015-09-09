@@ -26,11 +26,11 @@ class CategoricalKLDivergence(function.Function):
         (gradient w.r.t py_tilde) = - py/py_tilde
         """
         py,py_tilde = inputs
-        coeff = grad_outputs[0]/py.shape[0]
+        coeff = xp.asarray(grad_outputs[0]/py.shape[0],'float32')
         if(self.unchain_py):
             ret_py = None
         else:
-            ret_py = coeff * ( xp.log(py) - xp.log(py_tilde) + 1)
+            ret_py = coeff * ( xp.log(py) - xp.log(py_tilde) + 1.0)
         ret_py_tilde = -coeff * py/py_tilde
         return ret_py,ret_py_tilde
 

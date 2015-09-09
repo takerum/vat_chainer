@@ -1,6 +1,6 @@
-from adversarial_trainer import *
+from adversarial_trainer import * 
 from kl_divergence_for_vat import *
-import cupy
+import numpy
 
 class VirtualAdversarialTrainer(AdversarialTrainer):
 
@@ -32,15 +32,15 @@ class VirtualAdversarialTrainer(AdversarialTrainer):
         return cost_fitness, self.lamb*cost_fitness_vadv
 
     def get_virtual_adversarial_examples_for_py(self,x,py,test=False):
-        xp = cupy.get_array_module(*x)
-        d = xp.random.normal(size=x.data.shape)
+        xp = cupy.get_array_module(*x.data)
+        d = xp.random.normal(size=x.data.shape,dtype='float32')
         for i in xrange(self.num_power_iteration):
             input_gradient_keeper = InputGradientKeeper()
             d = as_mat(d)
             x_xi_d = x + self.xi*normalize_axis1(d).reshape(x.data.shape)
             x_xi_d_ = input_gradient_keeper(x_xi_d)
             py_given_x_xi_d = self.nn.py_given_x(x_xi_d_,test,False)
-            kl = categorical_kl_divergence(py,py_given_x_xi_d,unchain_py=True,use_cudnn=False)
+            kl = categorical_kl_divergence(py,py_given_x_xi_d,unchain_py=True)
             kl.backward()
             d = input_gradient_keeper.gx
         if (self.norm_constraint_type == 'L2'):
