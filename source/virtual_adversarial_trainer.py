@@ -1,5 +1,5 @@
 from adversarial_trainer import * 
-from kl_divergence_for_vat import *
+from categorical_kl_divergence import *
 import numpy
 
 class VirtualAdversarialTrainer(AdversarialTrainer):

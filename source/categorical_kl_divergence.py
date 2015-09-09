@@ -15,8 +15,8 @@ class CategoricalKLDivergence(function.Function):
         """
         py,py_tilde = inputs
         kl = py * ( xp.log(py) - xp.log(py_tilde) )
-        ret = xp.mean(xp.sum(kl,axis=1,keepdims=True),axis=0,keepdims=True)
-        return ret.reshape(()),
+        kl_sum = kl.sum(axis=1,keepdims=True)
+        return kl_sum.mean()
 
 
     def backward(self, inputs, grad_outputs):
