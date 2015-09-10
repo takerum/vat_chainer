@@ -59,8 +59,8 @@ class stdNN(NN):
 numpy.random.seed(1)
 cupy.random.seed(1)
 model = stdNN()
-#with cupy.cuda.Device(1):
-#    model.to_gpu()
+with cupy.cuda.Device(1):
+    model.to_gpu()
 virtual_adversarial_trainer = VirtualAdversarialTrainer(model,out_act_type='Softmax',epsilon=2.1,
                                                                             norm_constraint_type='L2',lamb=numpy.float(1.0),
                                                                             xi=numpy.float(1e-6),num_power_iteration=1)
@@ -91,9 +91,9 @@ for epoch in xrange(100):
     for i in xrange(0, 60000, batchsize):
         x_batch = x_train[indexes[i : i + batchsize]]
         y_batch = y_train[indexes[i : i + batchsize]]
-#        with cupy.cuda.Device(1):
- #           x_batch = cupy.array(x_batch)
-  #          y_batch = cupy.array(y_batch)
+        with cupy.cuda.Device(1):
+            x_batch = cupy.array(x_batch)
+            y_batch = cupy.array(y_batch)
         x_batch = Variable(x_batch)
         y_batch = Variable(y_batch)
         nll, cost_vadv= virtual_adversarial_trainer.cost_virtual_adversarial_training(x_batch,y_batch,unchain_clean_y=True)
@@ -116,9 +116,9 @@ for epoch in xrange(100):
     for i in xrange(0, 10000, batchsize):
         x_batch = x_test[i : i + batchsize]
         y_batch = y_test[i : i + batchsize]
- #       with cupy.cuda.Device(1):
-   #         x_batch = cupy.array(x_batch)
-    #        y_batch = cupy.array(y_batch)
+        with cupy.cuda.Device(1):
+            x_batch = cupy.array(x_batch)
+            y_batch = cupy.array(y_batch)
         x_batch = Variable(x_batch)
         y_batch = Variable(y_batch)
         sum_test_accuracy  += virtual_adversarial_trainer.accuracy(x_batch,y_batch).data*batchsize
