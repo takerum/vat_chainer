@@ -33,7 +33,7 @@ class VirtualAdversarialTrainer(AdversarialTrainer):
 
     def get_virtual_adversarial_examples_for_py(self,x,py,test=False):
         xp = cupy.get_array_module(*x.data)
-        d = xp.random.normal(size=x.data.shape,dtype='float32')
+        d = xp.random.normal(size=x.data.shape)
         for i in xrange(self.num_power_iteration):
             input_gradient_keeper = InputGradientKeeper()
             d = as_mat(d)
