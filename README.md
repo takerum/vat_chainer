@@ -8,6 +8,6 @@ python train.py
 If you find bug or problem, please report it! 
 
 ## Required libraries
-python 2.7, numpy 1.9, chainer 1.2.0
+python 2.7, numpy 1.9, chainer 1.3.0
 
 If you want to see theano implementation version, go to https://github.com/takerum/vat.
