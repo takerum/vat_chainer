@@ -47,17 +47,17 @@ def entropy_y_x(p_logit):
     return - F.sum(p * F.log_softmax(p_logit)) / p_logit.shape[0]
 
 
-def at_loss(forward, x, y, train=True, eps=8.0):
+def at_loss(forward, x, y, train=True, epsilon=8.0):
     ce = cross_entropy(forward(x, train=train, update_batch_stats=False), y)
     ce.backward()
     d = x.grad
     xp = cuda.get_array_module(x.data)
     d = d / xp.sqrt(xp.sum(d ** 2, axis=range(1, len(d.shape)), keepdims=True))
     d_var = Variable(d.astype(xp.float32))
-    return cross_entropy(forward(x + eps * d_var, train=train, update_batch_stats=False), y)
+    return cross_entropy(forward(x + epsilon * d_var, train=train, update_batch_stats=False), y)
 
 
-def vat_loss(forward, distance, x, train=True, eps=8.0, xi=1e-6, Ip=1, p_logit=None):
+def vat_loss(forward, distance, x, train=True, epsilon=8.0, xi=1e-6, Ip=1, p_logit=None):
     if p_logit is None:
         p_logit = forward(x, train=train, update_batch_stats=False).data  # unchain
     else:
@@ -74,5 +74,5 @@ def vat_loss(forward, distance, x, train=True, eps=8.0, xi=1e-6, Ip=1, p_logit=N
         d = d_var.grad
         d = d / xp.sqrt(xp.sum(d ** 2, axis=range(1, len(d.shape)), keepdims=True))
     d_var = Variable(d.astype(xp.float32))
-    p_adv_logit = forward(x + eps * d_var, train=train, update_batch_stats=False)
+    p_adv_logit = forward(x + epsilon * d_var, train=train, update_batch_stats=False)
     return distance(p_logit, p_adv_logit)

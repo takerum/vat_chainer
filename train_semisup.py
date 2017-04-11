@@ -22,11 +22,11 @@ def loss_unlabeled(forward, x, args):
     if args.ul_loss_type == 'vat':
         # Virtual adversarial training loss
         logit = forward(x, train=True, update_batch_stats=False)
-        return loss.vat_loss(forward, loss.distance, x, eps=args.eps, xi=XI, p_logit=logit.data)
+        return loss.vat_loss(forward, loss.distance, x, epsilon=args.epsilon, xi=XI, p_logit=logit.data)
     elif args.ul_loss_type == 'vatent':
         # Virtual adversarial training loss + Conditional Entropy loss
         logit = forward(x, train=True, update_batch_stats=False)
-        vat_loss = loss.vat_loss(forward, loss.distance, x, eps=args.eps, xi=XI, p_logit=logit.data)
+        vat_loss = loss.vat_loss(forward, loss.distance, x, epsilon=args.epsilon, xi=XI, p_logit=logit.data)
         ent_y_x = loss.entropy_y_x(logit)
         return vat_loss + ent_y_x
     elif args.ul_loss_type == 'baseline':
@@ -72,18 +72,18 @@ def train(args):
     optimizer = optimizers.Adam(alpha=args.lr, beta1=args.mom1)
     optimizer.setup(enc)
     optimizer.use_cleargrads()
-    alpha_plan = [args.lr] * args.n_epochs
-    beta1_plan = [args.mom1] * args.n_epochs
-    for i in range(args.epoch_decay_start, args.n_epochs):
-        alpha_plan[i] = float(args.n_epochs - i) / (args.n_epochs - args.epoch_decay_start) * args.lr
+    alpha_plan = [args.lr] * args.num_epochs
+    beta1_plan = [args.mom1] * args.num_epochs
+    for i in range(args.epoch_decay_start, args.num_epochs):
+        alpha_plan[i] = float(args.num_epochs - i) / (args.num_epochs - args.epoch_decay_start) * args.lr
         beta1_plan[i] = args.mom2
 
-    accs_test = np.zeros(args.n_epochs)
-    cl_losses = np.zeros(args.n_epochs)
-    ul_losses = np.zeros(args.n_epochs)
+    accs_test = np.zeros(args.num_epochs)
+    cl_losses = np.zeros(args.num_epochs)
+    ul_losses = np.zeros(args.num_epochs)
     n_it_batches = int(train_ul.N / args.batchsize_ul)
     mkdir_p(args.log_dir)
-    for epoch in range(args.n_epochs):
+    for epoch in range(args.num_epochs):
         optimizer.alpha = alpha_plan[epoch]
         optimizer.beta1 = beta1_plan[epoch]
         sum_loss_l = 0
@@ -150,14 +150,14 @@ if __name__ == "__main__":
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--batchsize_ul', type=int, default=128)
     parser.add_argument('--batchsize_eval', type=int, default=100)
-    parser.add_argument('--n_epochs', type=int, default=120)
+    parser.add_argument('--num_epochs', type=int, default=120)
     parser.add_argument('--epoch_decay_start', type=int, default=80)
     parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--mom1', type=float, default=0.9)
     parser.add_argument('--mom2', type=float, default=0.5)
 
     parser.add_argument('--ul_loss_type', type=str, default='vat')
-    parser.add_argument('--eps', type=float, help='epsilon', default=8.0)
+    parser.add_argument('--epsilon', type=float, help='epsilon', default=8.0)
     parser.add_argument('--dropout_rate', type=float, help='dropout_rate', default=0.5)
     parser.add_argument('--last_bn', action='store_true')
     args = parser.parse_args()
