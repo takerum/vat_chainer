@@ -9,12 +9,7 @@ from six.moves import urllib
 
 DATA_URL = 'http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
 
-# Process images of this size. Note that this differs from the original CIFAR
-# image size of 32 x 32. If one alters this number, then the entire model
-# architecture will change and any model would need to be retrained.
 IMAGE_SIZE = 32
-
-# Global constants describing the CIFAR-10 data set.
 NUM_CLASSES = 10
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
@@ -112,7 +107,7 @@ def load_cifar10(data_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, help='which gpu device to use', default='cifar10ss')
+    parser.add_argument('--data_dir', default='cifar10ss')
     parser.add_argument('--num_labeled_examples', type=int, default=4000)
     parser.add_argument('--num_valid_examples', type=int, default=1000)
     args = parser.parse_args()

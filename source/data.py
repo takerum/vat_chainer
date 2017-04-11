@@ -32,23 +32,21 @@ def augmentation(images, random_crop=True, random_flip=True):
 
 
 class Data:
-    def __init__(self, data, label, random_crop=True, random_flip=True):
+    def __init__(self, data, label):
         self.data = data
         self.label = label
-        self.random_crop = random_crop
-        self.random_flip = random_flip
         self.index = np.arange(self.N)
 
     @property
     def N(self):
         return len(self.data)
 
-    def _augmentation(self, images):
+    def _augmentation(self, images, trans=True, flip=True):
         # shape of `image' [N, K, W, H]
         assert images.ndim == 4
-        return augmentation(images, self.random_crop, self.random_flip)
+        return augmentation(images, trans, flip)
 
-    def get(self, n=None, shuffle=True, aug=False, gpu=-1):
+    def get(self, n=None, shuffle=True, aug_trans=True, aug_flip=True, gpu=-1):
         if shuffle:
             ind = np.random.permutation(self.data.shape[0])
         else:
@@ -56,13 +54,10 @@ class Data:
         if n is None:
             n = self.data.shape[0]
         index = ind[:n]
-        return self.get_with_index(index, aug=aug, gpu=gpu)
-
-    def get_with_index(self, index, aug=False, gpu=-1):
         batch_data = self.data[index]
         batch_label = self.label[index]
-        if aug:
-            batch_data = self._augmentation(batch_data)
+        if aug_trans or aug_flip:
+            batch_data = self._augmentation(batch_data, aug_trans, aug_flip)
         if gpu > -1:
             return cuda.to_gpu(batch_data, device=gpu), \
                    cuda.to_gpu(batch_label, device=gpu)

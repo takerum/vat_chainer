@@ -12,18 +12,11 @@ import copy
 DATA_URL_TRAIN = 'http://ufldl.stanford.edu/housenumbers/train_32x32.mat'
 DATA_URL_TEST = 'http://ufldl.stanford.edu/housenumbers/test_32x32.mat'
 
-# Process images of this size. Note that this differs from the original CIFAR
-# image size of 32 x 32. If one alters this number, then the entire model
-# architecture will change and any model would need to be retrained.
 IMAGE_SIZE = 32
-
-# Global constants describing the CIFAR-10 data set.
 NUM_CLASSES = 10
 NUM_EXAMPLES_TRAIN = 73257
 NUM_EXAMPLES_TEST = 26032
 NUM_EXAMPLES_VALID = 10000
-
-
 
 
 def maybe_download_and_extract(data_dir):
@@ -59,8 +52,8 @@ def maybe_download_and_extract(data_dir):
         test_labels = test_data['y'].flatten().astype(np.int32)
         test_labels[test_labels == 10] = 0
 
-        train_images = train_images.reshape((NUM_EXAMPLES_TRAIN, -1))
-        test_images = test_images.reshape((NUM_EXAMPLES_TEST, -1))
+        train_images = train_images.reshape((NUM_EXAMPLES_TRAIN, -1)).astype(np.float32)
+        test_images = test_images.reshape((NUM_EXAMPLES_TEST, -1)).astype(np.float32)
         np.savez('{}/train'.format(data_dir), images=train_images, labels=train_labels)
         np.savez('{}/test'.format(data_dir), images=test_images, labels=test_labels)
 
@@ -78,11 +71,6 @@ if __name__ == "__main__":
     parser.add_argument('--num_labeled_examples', type=int, default=1000)
     parser.add_argument('--num_valid_examples', type=int, default=200)
     args = parser.parse_args()
-
-    category_list = [int(item) for item in args.category_list_for_labeled.split(',')]
-    category_list_unlabeled = [int(item) for item in args.category_list_for_unlabeled.split(',')]
-    print("category list for labeled", category_list)
-    print("category list for unlabeled", category_list_unlabeled)
 
     for dataset_seed in [1, 2, 3, 4, 5]:
         dirpath = os.path.join(args.data_dir, 'seed' + str(dataset_seed))

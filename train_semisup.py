@@ -6,7 +6,7 @@ from chainer import Variable, optimizers, cuda, serializers
 
 from source.chainer_functions import loss
 from source.data import Data
-from source.utils import mkdir_p, load_npz_as_dict, ZCA_preprocess
+from source.utils import mkdir_p, load_npz_as_dict
 from models.cnn import CNN
 
 XI = 1e-6
@@ -65,7 +65,7 @@ def train(args):
     np.random.seed(args.seed)
     train_l, train_ul, test = load_dataset(args.data_dir, valid=args.validation, dataset_seed=args.dataset_seed)
     print("N_train_labeled:{}, N_train_unlabeled:{}".format(train_l.N, train_ul.N))
-    enc = CNN(n_outputs=args.n_categories, dropout_rate=args.dropout_rate, dim_factor=args.dim_factor)
+    enc = CNN(n_outputs=args.n_categories, dropout_rate=args.dropout_rate, last_bn=args.last_bn)
     if args.gpu > -1:
         chainer.cuda.get_device(args.gpu).use()
         enc.to_gpu()
@@ -91,9 +91,9 @@ def train(args):
         sum_loss_ul = 0
         start = time.time()
         for it in range(n_it_batches):
-            x, t = train_l.get(args.batchsize, gpu=args.gpu, aug=args.augmentation)
+            x, t = train_l.get(args.batchsize, gpu=args.gpu, aug_trans=args.aug_trans, aug_flip=args.aug_flip)
             loss_l = loss_labeled(enc, Variable(x), Variable(t))
-            x_u, _ = train_ul.get(args.batchsize_ul, gpu=args.gpu, aug=args.augmentation)
+            x_u, _ = train_ul.get(args.batchsize_ul, gpu=args.gpu, aug_trans=args.aug_trans, aug_flip=args.aug_flip)
             loss_ul = loss_unlabeled(enc, Variable(x_u), args)
             loss_total = loss_l + loss_ul
             enc.cleargrads()
@@ -142,7 +142,8 @@ if __name__ == "__main__":
     parser.add_argument('--n_categories', type=int, default=10)
     parser.add_argument('--eval_freq', type=int, default=5)
     parser.add_argument('--snapshot_freq', type=int, default=20)
-    parser.add_argument('--augmentation', action='store_true')
+    parser.add_argument('--aug_flip', action='store_true')
+    parser.add_argument('--aug_trans', action='store_true')
     parser.add_argument('--validation', action='store_true')
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--dataset_seed', type=int, default=1)
@@ -159,5 +160,6 @@ if __name__ == "__main__":
     parser.add_argument('--ul_loss_type', type=str, default='vat')
     parser.add_argument('--eps', type=float, help='epsilon', default=8.0)
     parser.add_argument('--dropout_rate', type=float, help='dropout_rate', default=0.5)
+    parser.add_argument('--last_bn', action='store_true')
     args = parser.parse_args()
     train(args)
