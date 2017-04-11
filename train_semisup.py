@@ -52,10 +52,9 @@ def load_dataset(dirpath, valid=False, dataset_seed=1):
         train_ul = load_npz_as_dict(os.path.join(dirpath, 'seed' + str(dataset_seed), 'unlabeled_train.npz'))
         test = load_npz_as_dict(os.path.join(dirpath, 'seed' + str(dataset_seed), 'test.npz'))
 
-    train_l['images'] = train_l['images'].reshape(train_l['images'].shape[0], 3, 32, 32)
-    train_ul['images'] = train_ul['images'].reshape(train_ul['images'].shape[0], 3, 32, 32)
-    test['images'] = test['images'].reshape(test['images'].shape[0], 3, 32, 32)
-
+    train_l['images'] = train_l['images'].reshape(train_l['images'].shape[0], 3, 32, 32).astype(np.float32)
+    train_ul['images'] = train_ul['images'].reshape(train_ul['images'].shape[0], 3, 32, 32).astype(np.float32)
+    test['images'] = test['images'].reshape(test['images'].shape[0], 3, 32, 32).astype(np.float32)
     return Data(train_l['images'], train_l['labels'].astype(np.int32)), \
            Data(train_ul['images'], train_ul['labels'].astype(np.int32)), \
            Data(test['images'], test['labels'].astype(np.int32))
@@ -140,7 +139,7 @@ if __name__ == "__main__":
     parser.add_argument('--data_dir', type=str, default='./dataset/cifar10/')
     parser.add_argument('--log_dir', type=str, default='log')
     parser.add_argument('--n_categories', type=int, default=10)
-    parser.add_argument('--eval_freq', type=int, default=5)
+    parser.add_argument('--eval_freq', type=int, default=1)
     parser.add_argument('--snapshot_freq', type=int, default=20)
     parser.add_argument('--aug_flip', action='store_true')
     parser.add_argument('--aug_trans', action='store_true')
@@ -150,7 +149,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--batchsize_ul', type=int, default=128)
-    parser.add_argument('--batchsize_eval', type=int, default=200)
+    parser.add_argument('--batchsize_eval', type=int, default=100)
     parser.add_argument('--n_epochs', type=int, default=120)
     parser.add_argument('--epoch_decay_start', type=int, default=80)
     parser.add_argument('--lr', type=float, default=0.001)

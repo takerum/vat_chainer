@@ -92,8 +92,6 @@ def maybe_download_and_extract(data_dir):
         train_images = np.dot(train_images - mean, components.T)
         test_images = np.dot(test_images - mean, components.T)
 
-        train_images = train_images.reshape((50000, -1))
-        test_images = test_images.reshape((10000, -1))
         np.savez('{}/train'.format(data_dir), images=train_images, labels=train_labels)
         np.savez('{}/test'.format(data_dir), images=test_images, labels=test_labels)
 

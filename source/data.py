@@ -46,7 +46,7 @@ class Data:
         assert images.ndim == 4
         return augmentation(images, trans, flip)
 
-    def get(self, n=None, shuffle=True, aug_trans=True, aug_flip=True, gpu=-1):
+    def get(self, n=None, shuffle=True, aug_trans=False, aug_flip=False, gpu=-1):
         if shuffle:
             ind = np.random.permutation(self.data.shape[0])
         else:

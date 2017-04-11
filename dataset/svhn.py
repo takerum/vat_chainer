@@ -16,7 +16,6 @@ IMAGE_SIZE = 32
 NUM_CLASSES = 10
 NUM_EXAMPLES_TRAIN = 73257
 NUM_EXAMPLES_TEST = 26032
-NUM_EXAMPLES_VALID = 10000
 
 
 def maybe_download_and_extract(data_dir):
@@ -27,17 +26,17 @@ def maybe_download_and_extract(data_dir):
     filepath_train_mat = os.path.join(data_dir, 'train_32x32.mat')
     filepath_test_mat = os.path.join(data_dir, 'test_32x32.mat')
     if not os.path.exists(filepath_train_mat) or not os.path.exists(filepath_test_mat):
+    #if True:
         def _progress(count, block_size, total_size):
             sys.stdout.write('\r>> Downloading %.1f%%' % (float(count * block_size) / float(total_size) * 100.0))
             sys.stdout.flush()
-
         urllib.request.urlretrieve(DATA_URL_TRAIN, filepath_train_mat, _progress)
         urllib.request.urlretrieve(DATA_URL_TEST, filepath_test_mat, _progress)
 
         # Training set
         print("Loading training data...")
         train_data = loadmat(data_dir + '/train_32x32.mat')
-        train_images = (-127.5 + train_data['X']) / 255.
+        train_images = (-127.5 + train_data['X'].astype(np.float32)) / 255.
         train_images = train_images.transpose((3, 2, 0, 1))
         train_images = train_images.reshape([train_images.shape[0], -1])
         train_labels = train_data['y'].flatten().astype(np.int32)
@@ -46,14 +45,12 @@ def maybe_download_and_extract(data_dir):
         # Test set
         print("Loading test data...")
         test_data = loadmat(data_dir + '/test_32x32.mat')
-        test_images = (-127.5 + test_data['X']) / 255.
+        test_images = (-127.5 + test_data['X'].astype(np.float32)) / 255.
         test_images = test_images.transpose((3, 2, 0, 1))
         test_images = test_images.reshape((test_images.shape[0], -1))
         test_labels = test_data['y'].flatten().astype(np.int32)
         test_labels[test_labels == 10] = 0
 
-        train_images = train_images.reshape((NUM_EXAMPLES_TRAIN, -1)).astype(np.float32)
-        test_images = test_images.reshape((NUM_EXAMPLES_TEST, -1)).astype(np.float32)
         np.savez('{}/train'.format(data_dir), images=train_images, labels=train_labels)
         np.savez('{}/test'.format(data_dir), images=test_images, labels=test_labels)
 

@@ -64,5 +64,5 @@ class CNN(chainer.Chain):
         h = F.average_pooling_2d(h, ksize=h.data.shape[2])
         logit = self.l_cl(h)
         if self.last_bn:
-            logit = self.bn_cl(logit, test=not train, update_batch_stats=update_batch_stats)
+            logit = call_bn(self.bn_cl, logit, test=not train, update_batch_stats=update_batch_stats)
         return logit
