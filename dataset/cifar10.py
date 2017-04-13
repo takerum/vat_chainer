@@ -9,11 +9,6 @@ from six.moves import urllib
 
 DATA_URL = 'http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
 
-IMAGE_SIZE = 32
-NUM_CLASSES = 10
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
-
 
 def unpickle(file):
     fp = open(file, 'rb')
