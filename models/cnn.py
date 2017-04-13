@@ -8,9 +8,9 @@ from source.chainer_functions.misc import call_bn
 
 
 class CNN(chainer.Chain):
-    def __init__(self, n_outputs=10, dropout_rate=0.5, last_bn=False):
+    def __init__(self, n_outputs=10, dropout_rate=0.5, top_bn=False):
         self.dropout_rate = dropout_rate
-        self.last_bn = last_bn
+        self.top_bn = top_bn
         super(CNN, self).__init__(
             c1=L.Convolution2D(3, 128, ksize=3, stride=1, pad=1),
             c2=L.Convolution2D(128, 128, ksize=3, stride=1, pad=1),
@@ -32,7 +32,7 @@ class CNN(chainer.Chain):
             bn8=L.BatchNormalization(256),
             bn9=L.BatchNormalization(128),
         )
-        if last_bn:
+        if top_bn:
             self.add_link('bn_cl', L.BatchNormalization(n_outputs))
 
     def __call__(self, x, train=True, update_batch_stats=True):
@@ -63,6 +63,6 @@ class CNN(chainer.Chain):
         h = F.leaky_relu(call_bn(self.bn9, h, test=not train, update_batch_stats=update_batch_stats), slope=0.1)
         h = F.average_pooling_2d(h, ksize=h.data.shape[2])
         logit = self.l_cl(h)
-        if self.last_bn:
+        if self.top_bn:
             logit = call_bn(self.bn_cl, logit, test=not train, update_batch_stats=update_batch_stats)
         return logit

@@ -19,17 +19,17 @@ def loss_labeled(forward, x, t):
 
 
 def loss_unlabeled(forward, x, args):
-    if args.ul_loss_type == 'vat':
+    if args.method == 'vat':
         # Virtual adversarial training loss
         logit = forward(x, train=True, update_batch_stats=False)
         return loss.vat_loss(forward, loss.distance, x, epsilon=args.epsilon, xi=XI, p_logit=logit.data)
-    elif args.ul_loss_type == 'vatent':
+    elif args.method == 'vatent':
         # Virtual adversarial training loss + Conditional Entropy loss
         logit = forward(x, train=True, update_batch_stats=False)
         vat_loss = loss.vat_loss(forward, loss.distance, x, epsilon=args.epsilon, xi=XI, p_logit=logit.data)
         ent_y_x = loss.entropy_y_x(logit)
         return vat_loss + ent_y_x
-    elif args.ul_loss_type == 'baseline':
+    elif args.method == 'baseline':
         xp = cuda.get_array_module(x.data)
         return Variable(xp.array(0, dtype=xp.float32))
     else:
@@ -64,7 +64,7 @@ def train(args):
     np.random.seed(args.seed)
     train_l, train_ul, test = load_dataset(args.data_dir, valid=args.validation, dataset_seed=args.dataset_seed)
     print("N_train_labeled:{}, N_train_unlabeled:{}".format(train_l.N, train_ul.N))
-    enc = CNN(n_outputs=args.n_categories, dropout_rate=args.dropout_rate, last_bn=args.last_bn)
+    enc = CNN(n_outputs=args.n_categories, dropout_rate=args.dropout_rate, top_bn=args.top_bn)
     if args.gpu > -1:
         chainer.cuda.get_device(args.gpu).use()
         enc.to_gpu()
@@ -156,9 +156,9 @@ if __name__ == "__main__":
     parser.add_argument('--mom1', type=float, default=0.9)
     parser.add_argument('--mom2', type=float, default=0.5)
 
-    parser.add_argument('--ul_loss_type', type=str, default='vat')
+    parser.add_argument('--method', type=str, default='vat')
     parser.add_argument('--epsilon', type=float, help='epsilon', default=8.0)
     parser.add_argument('--dropout_rate', type=float, help='dropout_rate', default=0.5)
-    parser.add_argument('--last_bn', action='store_true')
+    parser.add_argument('--top_bn', action='store_true')
     args = parser.parse_args()
     train(args)
