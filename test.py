@@ -20,16 +20,13 @@ def train(args):
         enc.to_gpu()
 
     print("Finetune")
-    train_x, _ = train.get()
-    for i in range(0, train.N, args.batchsize):
-        x = train_x[i:i + args.batchsize]
-        if args.gpu > -1:
-            x = cuda.to_gpu(x, device=args.gpu)
+    for i in range(args.finetune_iter):
+        x,_ = train.get(args.batchsize_finetune, gpu=args.gpu)
         enc(x)
 
     acc_sum = 0
     test_x, test_t = test.get()
-    N_test = test_x.shape[0]
+    N_test = test.N
     for i in range(0, N_test, args.batchsize_eval):
         x = test_x[i:i + args.batchsize_eval]
         t = test_t[i:i + args.batchsize_eval]
@@ -49,11 +46,11 @@ if __name__ == "__main__":
     parser.add_argument('--data_dir', type=str, default='./dataset/cifar10/')
     parser.add_argument('--trained_model_path', type=str, default='log/trained_model')
     parser.add_argument('--n_categories', type=int, default=10)
-    parser.add_argument('--dim_factor', type=int, default=4)
     parser.add_argument('--validation', action='store_true')
     parser.add_argument('--dataset_seed', type=int, default=1)
-    parser.add_argument('--batchsize', type=int, default=32)
+    parser.add_argument('--batchsize_finetune', type=int, default=32)
     parser.add_argument('--batchsize_eval', type=int, default=100)
+    parser.add_argument('--finetune_iter', type=int, default=100)
 
     parser.add_argument('--dropout_rate', type=float, help='dropout_rate', default=0.5)
     args = parser.parse_args()
