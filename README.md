@@ -1,5 +1,5 @@
 # Virtual Adversarial training implemented with Chainer(http://chainer.org/)
-Python codes for reproducing the results on the SVHN and CIFAR-10 dataset in the paper "Virtual Adversarial Training: a Regularization Method for Supervised and Semi-Supervised Learning" http://arxiv.org/abs/1704.xxxxx
+Python codes for reproducing the results on the SVHN and CIFAR-10 dataset in the paper "Virtual Adversarial Training: a Regularization Method for Supervised and Semi-Supervised Learning" http://arxiv.org/abs/1704.03976
 
 ### Requirements
 python 3.x, chainer 1.22.0, scipy(for ZCA whitening)
