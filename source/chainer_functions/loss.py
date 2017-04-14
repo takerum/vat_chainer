@@ -53,8 +53,8 @@ def at_loss(forward, x, y, train=True, epsilon=8.0):
     d = x.grad
     xp = cuda.get_array_module(x.data)
     d = d / xp.sqrt(xp.sum(d ** 2, axis=range(1, len(d.shape)), keepdims=True))
-    d_var = Variable(d.astype(xp.float32))
-    return cross_entropy(forward(x + epsilon * d_var, train=train, update_batch_stats=False), y)
+    x_adv = x + epsilon * d 
+    return cross_entropy(forward(x_adv, train=train, update_batch_stats=False), y)
 
 
 def vat_loss(forward, distance, x, train=True, epsilon=8.0, xi=1e-6, Ip=1, p_logit=None):
@@ -67,12 +67,12 @@ def vat_loss(forward, distance, x, train=True, epsilon=8.0, xi=1e-6, Ip=1, p_log
     d = xp.random.normal(size=x.shape)
     d = d / xp.sqrt(xp.sum(d ** 2, axis=range(1, len(d.shape)), keepdims=True))
     for ip in range(Ip):
-        d_var = Variable(d.astype(xp.float32))
-        p_d_logit = forward(x + xi * d_var, train=train, update_batch_stats=False)
+        x_d = Variable(x.data + xi * d.astype(xp.float32))
+        p_d_logit = forward(x_d, train=train, update_batch_stats=False)
         kl_loss = distance(p_logit, p_d_logit)
         kl_loss.backward()
-        d = d_var.grad
+        d = x_d.grad
         d = d / xp.sqrt(xp.sum(d ** 2, axis=range(1, len(d.shape)), keepdims=True))
-    d_var = Variable(d.astype(xp.float32))
-    p_adv_logit = forward(x + epsilon * d_var, train=train, update_batch_stats=False)
+    x_adv = x + epsilon * d 
+    p_adv_logit = forward(x_adv, train=train, update_batch_stats=False)
     return distance(p_logit, p_adv_logit)
