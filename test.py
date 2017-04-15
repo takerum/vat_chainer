@@ -9,7 +9,7 @@ from train_semisup import load_dataset
 from source.utils import mkdir_p
 
 
-def train(args):
+def test(args):
     np.random.seed(1234)
     train, _, test = load_dataset(args.data_dir, valid=args.validation, dataset_seed=args.dataset_seed)
     print("N_train:{}".format(train.N))
@@ -54,4 +54,4 @@ if __name__ == "__main__":
 
     parser.add_argument('--dropout_rate', type=float, help='dropout_rate', default=0.5)
     args = parser.parse_args()
-    train(args)
+    test(args)
