@@ -1,4 +1,6 @@
 # Virtual Adversarial training implemented with Chainer(http://chainer.org/)
+<img src="https://github.com/takerum/vat_chainer/raw/master/vat.gif" width="480">
+
 Python codes for reproducing the results on the SVHN and CIFAR-10 dataset in the paper "Virtual Adversarial Training: a Regularization Method for Supervised and Semi-Supervised Learning" http://arxiv.org/abs/1704.03976
 
 ### Requirements
