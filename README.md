@@ -22,7 +22,7 @@ On CIFAR-10
 
 On SVHN
 
-```python train_semisup.py --dataset=svhn --data_dir=./dataset/svhn/ --log_dir=./log/svhn/ --num_epochs=120 --epoch_decay_start=80 --epsilon=2.5 --top_bn --method=vat```
+```python train_semisup.py --data_dir=./dataset/svhn/ --log_dir=./log/svhn/ --num_epochs=120 --epoch_decay_start=80 --epsilon=2.5 --top_bn --method=vat```
 
 ## Semi-supervised Learning with augmentation 
 On CIFAR-10
