@@ -47,12 +47,18 @@ def entropy_y_x(p_logit):
     return - F.sum(p * F.log_softmax(p_logit)) / p_logit.shape[0]
 
 
+def get_normalized_vector(d, xp):
+    d /= (1e-12 + xp.max(xp.abs(d), range(1, len(d.shape)), keepdims=True))
+    d /= xp.sqrt(1e-6 + xp.sum(d ** 2, range(1, len(d.shape)), keepdims=True))
+    return d
+
+
 def at_loss(forward, x, y, train=True, epsilon=8.0):
     ce = cross_entropy(forward(x, train=train, update_batch_stats=False), y)
     ce.backward()
     d = x.grad
     xp = cuda.get_array_module(x.data)
-    d = d / xp.sqrt(xp.sum(d ** 2, axis=range(1, len(d.shape)), keepdims=True))
+    d = get_normalized_vector(d, xp) 
     x_adv = x + epsilon * d 
     return cross_entropy(forward(x_adv, train=train, update_batch_stats=False), y)
 
@@ -65,7 +71,7 @@ def vat_loss(forward, distance, x, train=True, epsilon=8.0, xi=1e-6, Ip=1, p_log
 
     xp = cuda.get_array_module(x.data)
     d = xp.random.normal(size=x.shape)
-    d = d / xp.sqrt(xp.sum(d ** 2, axis=range(1, len(d.shape)), keepdims=True))
+    d = get_normalized_vector(d, xp) 
     for ip in range(Ip):
         x_d = Variable(x.data + xi * d.astype(xp.float32))
         p_d_logit = forward(x_d, train=train, update_batch_stats=False)

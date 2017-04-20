@@ -81,7 +81,6 @@ def train(args):
     accs_test = np.zeros(args.num_epochs)
     cl_losses = np.zeros(args.num_epochs)
     ul_losses = np.zeros(args.num_epochs)
-    n_it_batches = int(train_ul.N / args.batchsize_ul)
     mkdir_p(args.log_dir)
     for epoch in range(args.num_epochs):
         optimizer.alpha = alpha_plan[epoch]
@@ -89,7 +88,7 @@ def train(args):
         sum_loss_l = 0
         sum_loss_ul = 0
         start = time.time()
-        for it in range(n_it_batches):
+        for it in range(args.num_iter_per_epoch):
             x, t = train_l.get(args.batchsize, gpu=args.gpu, aug_trans=args.aug_trans, aug_flip=args.aug_flip)
             loss_l = loss_labeled(enc, Variable(x), Variable(t))
             x_u, _ = train_ul.get(args.batchsize_ul, gpu=args.gpu, aug_trans=args.aug_trans, aug_flip=args.aug_flip)
@@ -101,8 +100,8 @@ def train(args):
             sum_loss_l += loss_l.data
             sum_loss_ul += loss_ul.data
         end = time.time()
-        cl_losses[epoch] = sum_loss_l / n_it_batches
-        ul_losses[epoch] = sum_loss_ul / n_it_batches
+        cl_losses[epoch] = sum_loss_l / args.num_iter_per_epoch
+        ul_losses[epoch] = sum_loss_ul / args.num_iter_per_epoch
         if (epoch + 1) % args.eval_freq == 0:
             acc_test_sum = 0
             test_x, test_t = test.get()
@@ -139,7 +138,7 @@ if __name__ == "__main__":
     parser.add_argument('--data_dir', type=str, default='./dataset/cifar10/')
     parser.add_argument('--log_dir', type=str, default='log')
     parser.add_argument('--n_categories', type=int, default=10)
-    parser.add_argument('--eval_freq', type=int, default=1)
+    parser.add_argument('--eval_freq', type=int, default=5)
     parser.add_argument('--snapshot_freq', type=int, default=20)
     parser.add_argument('--aug_flip', action='store_true')
     parser.add_argument('--aug_trans', action='store_true')
@@ -151,6 +150,7 @@ if __name__ == "__main__":
     parser.add_argument('--batchsize_ul', type=int, default=128)
     parser.add_argument('--batchsize_eval', type=int, default=100)
     parser.add_argument('--num_epochs', type=int, default=120)
+    parser.add_argument('--num_iter_per_epoch', type=int, default=400)
     parser.add_argument('--epoch_decay_start', type=int, default=80)
     parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--mom1', type=float, default=0.9)
